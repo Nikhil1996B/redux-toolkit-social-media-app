@@ -1,11 +1,12 @@
 import React, { useState } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
-import { postAdded } from './postSlice'
+import { postAdded, addNewPost } from './postSlice'
 
 export const AddPostForm = () => {
   const [title, setTitle] = useState('')
   const [content, setContent] = useState('')
   const [userId, setUserId] = useState('')
+  const [addRequestStatus, setAddRequestStatus] = useState('idle')
 
   const dispatch = useDispatch()
 
@@ -14,12 +15,24 @@ export const AddPostForm = () => {
   const onTitleChanged = (event) => setTitle(event.target.value)
   const onContentChanged = (event) => setContent(event.target.value)
   const onAuthorChanged = (event) => setUserId(event.target.value)
-  /*
-  write a function onSavePostClicked that checks whether the
-  title and content are both true and if so dispatches new post 
-  with a random unique id and resets the state of title and content
-  */
-  const onSavePostClicked = () => {
+  const canSave =
+    [title, content, userId].every(Boolean) && addRequestStatus === 'idle'
+
+  const onSavePostClicked = async () => {
+    if (canSave) {
+      try {
+        setAddRequestStatus('pending')
+        console.log(title, content, userId)
+        await dispatch(addNewPost({ title, content, user: userId })).unwrap()
+        setTitle('')
+        setContent('')
+        setUserId('')
+      } catch (err) {
+        console.error('failed to save post', err)
+      } finally {
+        setAddRequestStatus('idle')
+      }
+    }
     if ((title, content)) {
       dispatch(postAdded(title, content, userId))
       // reset after dispatch
@@ -27,8 +40,6 @@ export const AddPostForm = () => {
       setContent('')
     }
   }
-
-  const canSave = Boolean(title) && Boolean(content) && Boolean(userId)
 
   const userOptions = users.map((user) => (
     <option key={user.id} value={user.id}>

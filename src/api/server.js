@@ -136,7 +136,7 @@ export const handlers = [
   }),
   rest.post('/fakeApi/posts', function (req, res, ctx) {
     const data = req.body
-
+    console.log(req)
     if (data.content === 'error') {
       return res(
         ctx.delay(ARTIFICIAL_DELAY_MS),
