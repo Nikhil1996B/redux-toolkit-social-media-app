@@ -20,7 +20,7 @@ export const NotificationsList = () => {
           <b>{user.name}</b> {notification.message}
         </div>
         <div title={notification.date}>
-          <i>{timeAgo} ago</i>
+          <i>{timeAgo}</i> ago
         </div>
       </div>
     )
