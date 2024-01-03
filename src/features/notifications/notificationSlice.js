@@ -10,7 +10,6 @@ export const fetchNotifications = createAsyncThunk(
     const response = await client.get(
       `/fakeApi/notifications?since=${latestTimestamp}`
     )
-    console.log(response)
     return response.data
   }
 )
@@ -18,14 +17,24 @@ export const fetchNotifications = createAsyncThunk(
 const notificationsSlice = createSlice({
   name: 'notifications',
   initialState: [],
-  reducers: {},
+  reducers: {
+    allNotificationsRead(state, action) {
+      state.forEatch((notification) => {
+        notification.read = true
+      })
+    },
+  },
   extraReducers(builder) {
     builder.addCase(fetchNotifications.fulfilled, (state, action) => {
       state.push(action.payload)
       state.sort((a, b) => b.date.localeCompare(a.date))
+      state.forEatch((notification) => {
+        notification.isNew = !notification.read
+      })
     })
   },
 })
 
 export default notificationsSlice.reducer
+export const { allNotificationsRead } = notificationsSlice.actions
 export const selectAllNotifications = (state) => state.notifications
