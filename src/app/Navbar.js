@@ -8,6 +8,7 @@ import {
 
 export const Navbar = () => {
   const dispatch = useDispatch()
+  let unreadNotificationsBadge
 
   const fetchNewNotifications = () => {
     dispatch(fetchNotifications())
@@ -15,7 +16,6 @@ export const Navbar = () => {
     const numUnreadNotifications = notifications.filter(
       (notification) => !notification.read
     ).length
-    let unreadNotificationsBadge
 
     if (numUnreadNotifications > 0) {
       unreadNotificationsBadge = (
