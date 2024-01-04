@@ -3,15 +3,19 @@ import {
   nanoid,
   createAsyncThunk,
   createSelector,
+  createEntityAdapter,
 } from '@reduxjs/toolkit'
 // import { sub } from 'date-fns'
 import { client } from '../../api/client'
 
-const initialState = {
-  posts: [],
+const postsAdapter = createEntityAdapter({
+  sortComparer: (a, b) => b.date.localeCompare(a.date),
+})
+
+const initialState = postsAdapter.getInitialState({
   status: 'idle',
   error: null,
-}
+})
 
 export const fetchPosts = createAsyncThunk('posts/fetchPosts', async () => {
   const response = await client.get('/fakeApi/posts')
@@ -52,8 +56,8 @@ const postSlice = createSlice({
       },
     },
     postUpdated: (state, action) => {
-      const { id, title, content } = action.payload
-      const existingPost = state.posts.find((post) => post.id === id)
+      const { postId, title, content } = action.payload
+      const existingPost = state.entities[postId]
       if (existingPost) {
         existingPost.title = title
         existingPost.content = content
@@ -61,7 +65,7 @@ const postSlice = createSlice({
     },
     reactionAdded: (state, action) => {
       const { postId, reaction } = action.payload
-      const existingPost = state.posts.find((post) => post.id === postId)
+      const existingPost = state.entities[postId]
       if (existingPost) {
         existingPost.reactions[reaction]++
       }
@@ -73,22 +77,23 @@ const postSlice = createSlice({
     })
     builder.addCase(fetchPosts.fulfilled, (state, action) => {
       state.status = 'succeeded'
-      state.posts = state.posts.concat(action.payload)
+      postsAdapter.upsertMany(state, action.payload)
     })
     builder.addCase(fetchPosts.rejected, (state, action) => {
       state.status = 'failed'
       state.error = action.error.message
     })
-    builder.addCase(addNewPost.fulfilled, (state, action) => {
-      state.posts.push(action.payload)
-    })
+    builder.addCase(addNewPost.fulfilled, postsAdapter.addOne)
   },
 })
 
 export default postSlice.reducer
-export const selectAllPosts = (state) => state.posts.posts
-export const selectPostsById = (state, postId) =>
-  state.posts.posts.find((post) => post.id === postId)
+
+export const {
+  selectAll: selectAllPosts,
+  selectById: selectPostsById,
+  selectIds: selectPostByIds,
+} = postsAdapter.getSelectors((state) => state.posts)
 
 export const selectPostsByUser = createSelector(
   [selectAllPosts, (state, userId) => userId],
