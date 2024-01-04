@@ -9,10 +9,10 @@ import {
 export const Navbar = () => {
   const dispatch = useDispatch()
   let unreadNotificationsBadge
+  const notifications = useSelector(selectAllNotifications)
 
   const fetchNewNotifications = () => {
     dispatch(fetchNotifications())
-    const notifications = useSelector(selectAllNotifications)
     const numUnreadNotifications = notifications.filter(
       (notification) => !notification.read
     ).length
