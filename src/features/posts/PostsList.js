@@ -5,12 +5,7 @@ import { Link } from 'react-router-dom'
 import { PostAuthor } from './PostAuthor'
 import { TimeAgo } from './TimeAgo'
 import { ReactionButton } from './ReactionsButton'
-import {
-  selectAllPosts,
-  fetchPosts,
-  selectPostsById,
-  selectPostByIds,
-} from './postSlice'
+import { fetchPosts, selectPostsById, selectPostByIds } from './postSlice'
 
 let PostExcerpts = ({ postId }) => {
   const post = useSelector((state) => selectPostsById(state, postId))
@@ -31,7 +26,6 @@ let PostExcerpts = ({ postId }) => {
 PostExcerpts = React.memo(PostExcerpts)
 
 export const PostsList = () => {
-  const posts = useSelector(selectAllPosts)
   const dispatch = useDispatch()
   const orderedPostsIds = useSelector(selectPostByIds)
   const postStatus = useSelector((state) => state.posts.status)
